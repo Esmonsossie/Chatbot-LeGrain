@@ -3,7 +3,13 @@ import MessageBubble from "./components/MessageBubble";
 
 export default function App() {
   const [question, setQuestion] = useState("");
-  const [messages, setMessages] = useState([]); // vide au départ
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      role: "bot",
+      text: "Bonjour — pose une question sur l'histoire de la Côte d'Ivoire (2000→aujourd'hui).",
+    },
+  ]); // initialisé avec le message bot
   const [loading, setLoading] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const containerRef = useRef(null);
@@ -32,6 +38,7 @@ export default function App() {
   // Auto-scroll
   useEffect(() => {
     const el = containerRef.current;
+    // @ts-ignore
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages]);
 
@@ -47,7 +54,7 @@ export default function App() {
     setQuestion("");
 
     // ajouter message bot temporaire "pending"
-    const botId = "bot-" + Date.now();
+    const botId = Date.now();
     const pendingBot = {
       id: botId,
       role: "bot",
@@ -131,7 +138,7 @@ export default function App() {
         {/* Image floutée en background */}
         <div
           className="absolute inset-0 bg-cover bg-center blur-lg"
-          style={{ backgroundImage: "url('./src/assets/flag.jpg')" }}
+          style={{ backgroundImage: "url('/assets/flag.jpg')" }}
         />
 
         {/* Contenu au-dessus */}

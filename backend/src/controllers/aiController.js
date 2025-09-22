@@ -1,5 +1,6 @@
 import ai from "../services/genaiClient.js";
 
+// @ts-ignore
 export async function ask(req, res) {
   try {
     // Affiche le body reçu pour debug
@@ -54,13 +55,14 @@ Question : ${question}
 
     const answer =
       response?.text ??
+      // @ts-ignore
       (typeof response?.text === "function" ? await response.text() : null);
 
-    console.log("✅ Réponse générée :", answer);
+    console.log(" Réponse générée :", answer);
 
     res.json({ question, answer });
   } catch (err) {
-    console.error("❌ Erreur Gemini:", err);
+    console.error(" Erreur Gemini:", err);
     res.status(500).json({ error: "Erreur interne du serveur" });
   }
 }
