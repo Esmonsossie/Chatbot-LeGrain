@@ -9,28 +9,20 @@ export default function App() {
       role: "bot",
       text: "Bonjour — pose une question sur l'histoire de la Côte d'Ivoire (2000→aujourd'hui).",
     },
-  ]); // initialisé avec le message bot
+  ]);
   const [loading, setLoading] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const containerRef = useRef(null);
 
-  // Charger historique ou message initial
+  // Charger historique
   useEffect(() => {
     const saved = localStorage.getItem("chatHistory");
     if (saved) {
       setMessages(JSON.parse(saved));
-    } else {
-      setMessages([
-        {
-          id: 1,
-          role: "bot",
-          text: "Bonjour — pose une question sur l'histoire de la Côte d'Ivoire (2000→aujourd'hui).",
-        },
-      ]);
     }
   }, []);
 
-  // Sauvegarder à chaque mise à jour
+  // Sauvegarder à chaque update
   useEffect(() => {
     localStorage.setItem("chatHistory", JSON.stringify(messages));
   }, [messages]);
@@ -38,7 +30,6 @@ export default function App() {
   // Auto-scroll
   useEffect(() => {
     const el = containerRef.current;
-    // @ts-ignore
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages]);
 
@@ -46,26 +37,25 @@ export default function App() {
     const text = question.trim();
     if (!text) return;
 
-    if (!showChat) setShowChat(true); // afficher le chat
+    if (!showChat) setShowChat(true);
 
-    // ajouter message utilisateur
     const userMsg = { id: Date.now(), role: "user", text };
-    setMessages((m) => [...m, userMsg]);
-    setQuestion("");
 
-    // ajouter message bot temporaire "pending"
-    const botId = Date.now();
+    const botId = Date.now() + 1;
     const pendingBot = {
       id: botId,
       role: "bot",
       text: "En cours de réponse...",
       pending: true,
     };
-    setMessages((m) => [...m, pendingBot]);
+
+    // ✅ ajoute les deux d’un coup
+    setMessages((m) => [...m, userMsg, pendingBot]);
+    setQuestion("");
     setLoading(true);
 
     try {
-      const res = await fetch("https://chatbot-le-grain-bi7r.vercel.app/", {
+      const res = await fetch("https://chatbot-le-grain-bi7r.vercel.app/ask", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: text }),
@@ -75,7 +65,7 @@ export default function App() {
 
       const data = await res.json();
 
-      // remplacer le message "pending" par la vraie réponse
+      // remplace pending par vraie réponse
       setMessages((prev) =>
         prev.map((mm) =>
           mm.id === botId
@@ -110,7 +100,7 @@ export default function App() {
 
   return (
     <>
-      <header className="flex items-center justify-between  mb-4 mx-4 md:mx-8 p-4 md:p-6 ">
+      <header className="flex items-center justify-between mb-4 mx-4 md:mx-8 p-4 md:p-6">
         <h1 className="text-lg md:text-2xl text-[#BE7232] font-bold font-grotesk transition-transform duration-200 hover:-translate-y-1">
           Le Grin
         </h1>
@@ -135,17 +125,13 @@ export default function App() {
         </button>
       </header>
       <div className="relative min-h-screen flex flex-col items-center p-6">
-        {/* Image floutée en background */}
+        {/* Image floutée */}
         <div
           className="absolute inset-0 bg-cover bg-center blur-lg"
           style={{ backgroundImage: "url('/assets/flag.jpg')" }}
         />
 
-        {/* Contenu au-dessus */}
         <div className="relative z-10 w-full max-w-2xl">
-          {/* Header reste en haut */}
-
-          {/* Wrapper centré uniquement si chat non visible */}
           <div
             className={`flex flex-col w-full ${
               !showChat ? "justify-center h-[60vh]" : ""
@@ -167,7 +153,6 @@ export default function App() {
               </main>
             )}
 
-            {/* Barre de question */}
             <footer className="flex gap-3 items-end">
               <input
                 type="text"
@@ -179,7 +164,7 @@ export default function App() {
                     handleSend();
                   }
                 }}
-                className="flex-1 py-2 px-3 text-white font-grotesk bg-transparent  rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-[#447B56]"
+                className="flex-1 py-2 px-3 text-white font-grotesk bg-transparent rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-[#447B56]"
                 placeholder="Tape ta question ici ..."
               />
               <button
