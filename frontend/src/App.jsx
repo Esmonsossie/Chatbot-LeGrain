@@ -65,7 +65,7 @@ export default function App() {
     setLoading(true);
 
     try {
-      const res = await fetch("https://chatbot-le-grain-bi7r.vercel.app/ask", {
+      const res = await fetch("https://chatbot-le-grain-bi7r.vercel.app/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ question: text }),
