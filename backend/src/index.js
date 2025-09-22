@@ -4,7 +4,11 @@ import cors from "cors";
 import aiRoutes from "./routes/aiRoutes.js";
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: ["https://chatbot-le-grain.vercel.app"],
+  })
+);
 app.use(express.json());
 
 // route
