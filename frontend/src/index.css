@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+@theme {
+  --font-grotesk: "Space Grotesk", sans-serif;
+  --font-bitcount: "Bitcount Prop Double Ink", system-ui;
+}
+/* * {
+  background-color: #18181b;
+} */
