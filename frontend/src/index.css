@@ -1,8 +1,9 @@
 @import "tailwindcss";
-
+@import "animate.css";
 @theme {
   --font-grotesk: "Space Grotesk", sans-serif;
   --font-bitcount: "Bitcount Prop Double Ink", system-ui;
+  --font-bricolage: "Bricolage Grotesque", sans-serif;
 }
 /* * {
   background-color: #18181b;

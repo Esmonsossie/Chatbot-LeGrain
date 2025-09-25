@@ -1,4 +1,5 @@
 // src/components/MessageBubble.jsx
+// @ts-ignore
 export default function MessageBubble({ msg }) {
   const isUser = msg.role === "user";
 

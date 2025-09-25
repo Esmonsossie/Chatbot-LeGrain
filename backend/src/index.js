@@ -11,7 +11,7 @@ app.use(
 );
 app.use(express.json());
 
-// route
+// Déclare la route
 app.use("/ask", aiRoutes);
 
 const PORT = process.env.PORT || 3000;

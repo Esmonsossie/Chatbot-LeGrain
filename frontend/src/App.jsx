@@ -3,16 +3,11 @@ import MessageBubble from "./components/MessageBubble";
 
 export default function App() {
   const [question, setQuestion] = useState("");
-  const [messages, setMessages] = useState([
-    {
-      id: 1,
-      role: "bot",
-      text: "Bonjour — pose une question sur l'histoire de la Côte d'Ivoire (2000→aujourd'hui).",
-    },
-  ]);
+  const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const containerRef = useRef(null);
+  const [showLoader, setShowLoader] = useState(true);
 
   // Charger historique
   useEffect(() => {
@@ -30,9 +25,18 @@ export default function App() {
   // Auto-scroll
   useEffect(() => {
     const el = containerRef.current;
+    // @ts-ignore
     if (el) el.scrollTop = el.scrollHeight;
   }, [messages]);
 
+  //la page de chargement
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowLoader(false);
+    }, 1500); // 1 seconde
+    return () => clearTimeout(timer);
+  }, []);
+  //fonction
   const handleSend = async () => {
     const text = question.trim();
     if (!text) return;
@@ -49,7 +53,8 @@ export default function App() {
       pending: true,
     };
 
-    // ✅ ajoute les deux d’un coup
+    //  ajoute les deux d’un coup
+    // @ts-ignore
     setMessages((m) => [...m, userMsg, pendingBot]);
     setQuestion("");
     setLoading(true);
@@ -66,19 +71,25 @@ export default function App() {
       const data = await res.json();
 
       // remplace pending par vraie réponse
+      // @ts-ignore
       setMessages((prev) =>
         prev.map((mm) =>
+          // @ts-ignore
           mm.id === botId
-            ? { ...mm, text: data.answer || "Pas de réponse", pending: false }
+            ? // @ts-ignore
+              { ...mm, text: data.answer || "Pas de réponse", pending: false }
             : mm
         )
       );
     } catch (err) {
       console.error("Erreur API :", err);
+      // @ts-ignore
       setMessages((prev) =>
         prev.map((mm) =>
+          // @ts-ignore
           mm.id === botId
-            ? { ...mm, text: "Erreur lors de l'appel à l'API", pending: false }
+            ? // @ts-ignore
+              { ...mm, text: "Erreur lors de l'appel à l'API", pending: false }
             : mm
         )
       );
@@ -89,24 +100,42 @@ export default function App() {
 
   const clearChat = () => {
     setMessages([
+      // @ts-ignore
       {
         id: Date.now(),
         role: "bot",
         text: " Pose une nouvelle question.",
       },
     ]);
-    setShowChat(false);
+    setShowChat(true);
   };
+
+  if (showLoader) {
+    return (
+      <div
+        className="fixed inset-0 flex flex-col justify-center items-center bg-cover object-cover z-50"
+        style={{ backgroundImage: "url('/assets/presidents2.jpg')" }}
+      >
+        <div className="w-16 md:w-32 h-16 md:h-32 border-4 border-white border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p className="text-white font-bricolage text-lg md:text-xl">
+          Chargement...
+        </p>
+      </div>
+    );
+  }
 
   return (
     <>
-      <header className="flex items-center justify-between mb-4 mx-4 md:mx-8 p-4 md:p-6">
-        <h1 className="text-lg md:text-2xl text-[#BE7232] font-bold font-grotesk transition-transform duration-200 hover:-translate-y-1">
+      <header
+        className="  flex items-center  justify-between px-16 md:px-8 py-4 md:py-8 bg-cover "
+        style={{ backgroundImage: "url('/assets/bg.jpg')" }}
+      >
+        <h1 className=" text-lg md:text-2xl text-[#BE7232] font-bold font-grotesk transition-transform duration-200 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#447B56] animate__animated  animate__wobble ">
           Le Grin
         </h1>
         <button
           onClick={clearChat}
-          className="px-3 py-1 text-sm md:text-xl border border-[#447B56] rounded hover:bg-gray-100 transition-transform duration-200 hover:-translate-y-1"
+          className="px-3 py-1 text-sm md:text-xl border border-[#447B56] rounded hover:bg-gray-100 transition-transform duration-200 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#447B56] animate__animated  animate__wobble "
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -124,11 +153,12 @@ export default function App() {
           </svg>
         </button>
       </header>
+
       <div className="relative min-h-screen flex flex-col items-center p-6">
         {/* Image floutée */}
         <div
-          className="absolute inset-0 bg-cover bg-center blur-lg"
-          style={{ backgroundImage: "url('/assets/flag.jpg')" }}
+          className="absolute inset-0 bg-cover bg-center"
+          style={{ backgroundImage: "url('/assets/bg.jpg')" }}
         />
 
         <div className="relative z-10 w-full max-w-2xl">
@@ -137,12 +167,21 @@ export default function App() {
               !showChat ? "justify-center h-[60vh]" : ""
             }`}
           >
-            {showChat && (
+            {!showChat ? (
+              <div className="flex justify-center items-center mb-16 ">
+                {!showChat && (
+                  <h1 className="absolute z-10 font-bricolage font-bold bg-[#A1A45B]/60 text-xl md:text-4xl  text-white whitespace-nowrap p-2 md:p-4 mx-4 md:mx-0 rounded animate__animated animate__fadeInLeft">
+                    Comment puis-je vous aidez aujourd'hui ?
+                  </h1>
+                )}
+              </div>
+            ) : (
               <main
                 ref={containerRef}
-                className="bg-transparent text-white rounded-lg border-1 border-white shadow-xl p-4 h-[60vh] overflow-y-auto flex flex-col gap-3 mb-4"
+                className="bg-transparent text-white rounded-lg border-1 border-white shadow-xl p-4 h-[60vh]  overflow-y-auto flex flex-col gap-3 mb-4 animate__animated animate__zoomIn transition-transform duration-200 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#447B56]"
               >
                 {messages.map((m) => (
+                  // @ts-ignore
                   <MessageBubble key={m.id} msg={m} />
                 ))}
                 {loading && (
@@ -153,7 +192,7 @@ export default function App() {
               </main>
             )}
 
-            <footer className="flex gap-3 items-end">
+            <footer className="flex gap-3 items-end mt-8">
               <input
                 type="text"
                 value={question}
@@ -164,13 +203,13 @@ export default function App() {
                     handleSend();
                   }
                 }}
-                className="flex-1 py-2 px-3 text-white font-grotesk bg-transparent rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-[#447B56]"
+                className="flex-1 py-2 px-3 text-[#447B56] font-grotesk bg-transparent rounded border-2 border-[#447B56] resize-none focus:outline-none focus:ring-2 focus:ring-[#447B56] animate__animated animate__fadeInDown transition-transform duration-200 hover:-translate-y-1 hover:shadow-2xl hover:shadow-[#447B56]"
                 placeholder="Tape ta question ici ..."
               />
               <button
                 onClick={handleSend}
                 disabled={loading}
-                className="px-5 py-2 border border-[#447B56] hover:bg-[#447B56] text-white font-grotesk rounded disabled:opacity-60 transition-transform duration-200 hover:-translate-y-1"
+                className="px-5 py-2 border-2 border-[#447B56] hover:bg-[#447B56] text-white font-grotesk rounded disabled:opacity-60 transition-transform duration-200 hover:-translate-y-1 animate__animated animate__fadeInRight hover:shadow-2xl hover:shadow-[#447B56]"
               >
                 {loading ? "En cours..." : "Envoyer"}
               </button>
